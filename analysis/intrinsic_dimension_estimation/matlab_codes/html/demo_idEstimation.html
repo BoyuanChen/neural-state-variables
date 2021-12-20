@@ -1,0 +1,236 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Intrinsic Dimensionality (id) estimation</title><meta name="generator" content="MATLAB 7.13"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2013-01-31"><meta name="DC.source" content="demo_idEstimation.m"><style type="text/css">
+
+body {
+  background-color: white;
+  margin:10px;
+}
+
+h1 {
+  color: #990000; 
+  font-size: x-large;
+}
+
+h2 {
+  color: #990000;
+  font-size: medium;
+}
+
+/* Make the text shrink to fit narrow windows, but not stretch too far in 
+wide windows. */ 
+p,h1,h2,div.content div {
+  max-width: 600px;
+  /* Hack for IE6 */
+  width: auto !important; width: 600px;
+}
+
+pre.codeinput {
+  background: #EEEEEE;
+  padding: 10px;
+}
+@media print {
+  pre.codeinput {word-wrap:break-word; width:100%;}
+} 
+
+span.keyword {color: #0000FF}
+span.comment {color: #228B22}
+span.string {color: #A020F0}
+span.untermstring {color: #B20000}
+span.syscmd {color: #B28C00}
+
+pre.codeoutput {
+  color: #666666;
+  padding: 10px;
+}
+
+pre.error {
+  color: red;
+}
+
+p.footer {
+  text-align: right;
+  font-size: xx-small;
+  font-weight: lighter;
+  font-style: italic;
+  color: gray;
+}
+
+  </style></head><body><div class="content"><h1>Intrinsic Dimensionality (id) estimation</h1><!--introduction--><p>In the past decade the development of automatic techniques to estimate the intrinsic dimensionality of a given dataset has gained considerable attention due to its relevance in several application elds.</p><p>In this small toolbox some of the state-of-art techniques are implemented as functions that use a "standard" interface to use them, thus allowing client code to be decoupled from the knowledge of the applied technique.</p><p>For more details see/cite:</p><pre>"Minimum Neighbor Distance Estimators of Intrinsic Dimension",
+A.Rozza, G.Lombardi, C.Ceruti, E.Casiraghi, P.Campadelli,
+Published to the European Conference of Machine Learning (ECML 2011).</pre><pre>"DANCo: Dimensionality from Angle and Norm Concentration",
+C. Ceruti, S. Bassis, A. Rozza, G. Lombardi, E. Casiraghi, P. Campadelli
+arXiv:1206.3881v1, http://arxiv.org/abs/1206.3881v1</pre><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Usage of this id-estimation toolbox</a></li><li><a href="#3">Estimators based on the Kullback-Leibler divergence</a></li></ul></div><h2>Usage of this id-estimation toolbox<a name="1"></a></h2><p>As an example here we generate a simple dataset and test all the implemented techniques on it to compare the results, the dataset is an hypersphere in R^{10} linearly embedded in R^{20}.</p><pre class="codeinput"><span class="comment">% Generating the dataset:</span>
+d = 10; D = 20;
+X = randsphere(d,500);
+V = linSubspSpanOrthonormalize(randn(D,d));
+data = V*X;
+
+<span class="comment">% A first base estimation:</span>
+fprintf(<span class="string">'MLE      =&gt; %2.2f\n'</span>, MLE(data));
+fprintf(<span class="string">'DANCoFit =&gt; %2.2f\n'</span>, DANCoFit(data));
+</pre><pre class="codeoutput">MLE      =&gt; 8.07
+DANCoFit =&gt; 10.00
+</pre><pre class="codeinput"><span class="comment">% The techniques:</span>
+estimators = {<span class="string">'MLE'</span>,<span class="string">'MiND_ML'</span>,<span class="string">'MiND_KL'</span>,<span class="string">'DANCo'</span>,<span class="string">'DANCoFit'</span>};
+
+<span class="comment">% Initializing the results:</span>
+idEst = zeros(1,numel(estimators));
+spentTime = zeros(1,numel(estimators));
+
+<span class="comment">% Running the experiments:</span>
+<span class="keyword">for</span> i = 1:numel(estimators)
+    <span class="comment">% Obtaining the funciton:</span>
+    estimator = str2func(estimators{i});
+
+    <span class="comment">% Estimating:</span>
+    tic;
+    idEst(i) = estimator(data);
+    spentTime(i) = toc;
+<span class="keyword">end</span>
+
+<span class="comment">% Plotting the results:</span>
+figure; bar([idEst(:),spentTime(:)]); hold <span class="string">on</span>;
+plot([0,numel(estimators)+1],[d,d],<span class="string">'b:'</span>);
+set(gca,<span class="string">'xticklabel'</span>,estimators);
+legend({<span class="string">'Estimated id'</span>,<span class="string">'Spent time'</span>},<span class="string">'Location'</span>,<span class="string">'NorthWest'</span>);
+title(sprintf(<span class="string">'Estimating the id of a %dd hypersphere linearly embedded in R^{%d}'</span>,d,D));
+</pre><img vspace="5" hspace="5" src="demo_idEstimation_01.png" alt=""> <h2>Estimators based on the Kullback-Leibler divergence<a name="3"></a></h2><p>Some of the presented algorithms estimate the Kullback-Leibler divergence between the distribution of some statistics computed on the real dataset and those computed on synthetically-cenerated data (hyperspheres) or by means of fitting functions (trained using the statistics produced by synthetic data). Here the results obtained by some of them.</p><pre class="codeinput"><span class="comment">% Initialization:</span>
+estimators = {<span class="string">'MiND_KL'</span>,<span class="string">'DANCo'</span>,<span class="string">'DANCoFit'</span>};
+
+<span class="comment">% Initializing the results:</span>
+idEst = zeros(1,numel(estimators));
+spentTime = zeros(1,numel(estimators));
+kls = zeros(numel(estimators),D);
+
+<span class="comment">% Running the experiments:</span>
+<span class="keyword">for</span> i = 1:numel(estimators)
+    <span class="comment">% Obtaining the funciton:</span>
+    estimator = str2func(estimators{i});
+
+    <span class="comment">% Estimating:</span>
+    tic;
+    [idEst(i),kls(i,:)] = estimator(data);
+    spentTime(i) = toc;
+<span class="keyword">end</span>
+
+<span class="comment">% Notice that DANCo produces unreliable results for d=1:</span>
+Ds = 2:D;
+kls2 = kls(:,Ds);
+
+<span class="comment">% Plotting the results:</span>
+figure; plot(Ds,kls2'); hold <span class="string">on</span>;
+plot([idEst;idEst],[zeros(size(idEst));max(kls2(:))*ones(size(idEst))],<span class="string">':'</span>);
+legend(estimators,<span class="string">'Location'</span>,<span class="string">'NorthEast'</span>);
+title(<span class="string">'KL-based id estimatros: the estimated KLs'</span>);
+</pre><img vspace="5" hspace="5" src="demo_idEstimation_02.png" alt=""> <p class="footer"><br>
+      Published with MATLAB&reg; 7.13<br></p></div><!--
+##### SOURCE BEGIN #####
+%% Intrinsic Dimensionality (id) estimation
+%
+% In the past decade the development of automatic techniques to estimate 
+% the intrinsic dimensionality of a given dataset has gained considerable 
+% attention due to its relevance in several application elds. 
+%
+% In this small toolbox some of the state-of-art techniques are implemented
+% as functions that use a "standard" interface to use them, thus allowing
+% client code to be decoupled from the knowledge of the applied technique.
+% 
+% For more details see/cite:
+%
+%  "Minimum Neighbor Distance Estimators of Intrinsic Dimension",
+%  A.Rozza, G.Lombardi, C.Ceruti, E.Casiraghi, P.Campadelli,
+%  Published to the European Conference of Machine Learning (ECML 2011).
+%
+%  "DANCo: Dimensionality from Angle and Norm Concentration",
+%  C. Ceruti, S. Bassis, A. Rozza, G. Lombardi, E. Casiraghi, P. Campadelli
+%  arXiv:1206.3881v1, http://arxiv.org/abs/1206.3881v1
+
+%% Usage of this id-estimation toolbox
+%
+% As an example here we generate a simple dataset and test all the 
+% implemented techniques on it to compare the results, the dataset is an 
+% hypersphere in R^{10} linearly embedded in R^{20}.
+
+% Generating the dataset:
+d = 10; D = 20;
+X = randsphere(d,500);
+V = linSubspSpanOrthonormalize(randn(D,d));
+data = V*X;
+
+% A first base estimation:
+fprintf('MLE      => %2.2f\n', MLE(data));
+fprintf('DANCoFit => %2.2f\n', DANCoFit(data));
+
+%%
+
+% The techniques:
+estimators = {'MLE','MiND_ML','MiND_KL','DANCo','DANCoFit'};
+
+% Initializing the results:
+idEst = zeros(1,numel(estimators));
+spentTime = zeros(1,numel(estimators));
+
+% Running the experiments:
+for i = 1:numel(estimators)
+    % Obtaining the funciton:
+    estimator = str2func(estimators{i});
+    
+    % Estimating:
+    tic;
+    idEst(i) = estimator(data);
+    spentTime(i) = toc;
+end
+
+% Plotting the results:
+figure; bar([idEst(:),spentTime(:)]); hold on;
+plot([0,numel(estimators)+1],[d,d],'b:');
+set(gca,'xticklabel',estimators);
+legend({'Estimated id','Spent time'},'Location','NorthWest');
+title(sprintf('Estimating the id of a %dd hypersphere linearly embedded in R^{%d}',d,D));
+
+%% Estimators based on the Kullback-Leibler divergence
+%
+% Some of the presented algorithms estimate the Kullback-Leibler divergence
+% between the distribution of some statistics computed on the real dataset
+% and those computed on synthetically-cenerated data (hyperspheres) or by
+% means of fitting functions (trained using the statistics produced by
+% synthetic data). Here the results obtained by some of them.
+
+% Initialization:
+estimators = {'MiND_KL','DANCo','DANCoFit'};
+
+% Initializing the results:
+idEst = zeros(1,numel(estimators));
+spentTime = zeros(1,numel(estimators));
+kls = zeros(numel(estimators),D);
+
+% Running the experiments:
+for i = 1:numel(estimators)
+    % Obtaining the funciton:
+    estimator = str2func(estimators{i});
+    
+    % Estimating:
+    tic;
+    [idEst(i),kls(i,:)] = estimator(data);
+    spentTime(i) = toc;
+end
+
+% Notice that DANCo produces unreliable results for d=1:
+Ds = 2:D;
+kls2 = kls(:,Ds);
+
+% Plotting the results:
+figure; plot(Ds,kls2'); hold on; 
+plot([idEst;idEst],[zeros(size(idEst));max(kls2(:))*ones(size(idEst))],':');
+legend(estimators,'Location','NorthEast');
+title('KL-based id estimatros: the estimated KLs');
+
+##### SOURCE END #####
+--></body></html>

@@ -1,0 +1,15 @@
+lr: 0.03
+seed: 2
+if_cuda: True
+gamma: 0.5
+log_dir: 'logs'
+train_batch: 512
+val_batch: 256
+test_batch: 256
+num_workers: 8
+model_name: 'latent-prediction'
+data_filepath: './data/'
+dataset: 'swingstick_non_magnetic'
+lr_schedule: [20, 50, 100, 300]
+num_gpus: 1
+epochs: 1000

@@ -1,0 +1,15 @@
+lr: 0.0003
+seed: 2
+if_cuda: True
+gamma: 0.5
+log_dir: 'logs'
+train_batch: 512
+val_batch: 256
+test_batch: 256
+num_workers: 8
+model_name: 'refine-64'
+data_filepath: './data/'
+dataset: 'air_dancer'
+lr_schedule: [15, 30, 100, 300]
+num_gpus: 1
+epochs: 1000
