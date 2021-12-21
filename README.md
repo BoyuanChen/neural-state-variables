@@ -10,7 +10,7 @@
 Columbia University
 <br>
 
-### [Project Website](https://www.cs.columbia.edu/~bchen/neural-state-variables) | [Video](https://youtu.be/KWHXchlJzSw) | [Paper](http://arxiv.org/abs/xxxx.xxxxx)
+### [Project Website](https://www.cs.columbia.edu/~bchen/neural-state-variables) | [Video](https://youtu.be/KWHXchlJzSw) | [Paper](http://arxiv.org/abs/2112.10755)
 
 ## Overview
 This repo contains the PyTorch implementation for paper "Discovering State Variables Hidden in Experimental Data".
@@ -25,7 +25,7 @@ If you find our paper or codebase helpful, please consider citing:
 @article{chen2021discover,
   title={Discovering State Variables Hidden in Experimental Data},
   author={Chen, Boyuan and Huang, Kuang and Raghupathi, Sunand and Chandratreya, Ishaan and Du, Qiang and Lipson, Hod},
-  journal={arXiv preprint arXiv:xxxx.xxxxx},
+  journal={arXiv preprint arXiv:2112.10755},
   year={2021}
 }
 ```
