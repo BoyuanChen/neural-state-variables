@@ -51,9 +51,30 @@ virtualenv -p /usr/bin/python3.6 env3.6
 source env3.6/bin/activate
 pip install -r requirements.txt
 ```
+
+Manually install PyTorch from  - [PyTorch.org](https://pytorch.org/get-started/locally) (PyTorch.org)
+
+Learn your compute platform by 
+```
+$ nvcc --version
+```
+Select PyTorch Build (stable was 1.12.0)
+
+Select OS "Linux"
+
+Package "Pip"
+
+Language "Python"
+
+Compute Platform "Cuda 11.6"
+
+Run This command
+```
+python3 -m pip install torch torchvision torchaudio torchfile --extra-index-url https://download.pytorch.org/whl/cu116
+```
 **Note**: You may need to install Matlab on your computer to use some of the data collectors and intrinsic dimension estimation algorithms.
 
-## Logingg
+## Logging
 
 We first introduce the naming convention of the saved files so that it is clear what will be saved and where they will be saved.
 
