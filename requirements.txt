@@ -108,7 +108,6 @@ parso==0.3.4
 pexpect==4.6.0
 pickleshare==0.7.5
 Pillow==7.1.2
-pkg-resources==0.0.0
 plotly==4.14.3
 pluggy==0.11.0
 prometheus-client==0.10.1
@@ -159,10 +158,6 @@ tensorboardX==2.2
 termcolor==1.1.0
 terminado==0.8.2
 testpath==0.4.2
---find-links https://download.pytorch.org/whl/torch_stable.html
-torch==1.7.0
-torchfile==0.1.0
-torchvision==0.8.1
 tornado==6.0.2
 tqdm==4.54.1
 traitlets==4.3.2
